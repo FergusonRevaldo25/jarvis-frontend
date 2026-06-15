@@ -38,7 +38,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
     resize();
     window.addEventListener('resize', resize);
 
-    // Cross-directional orbiters
     const crossOrbiters: Array<{axis: 'h' | 'v' | 'd1' | 'd2'; radius: number; speed: number; phase: number; size: number}> = [];
     for (let i = 0; i < 60; i++) {
       crossOrbiters.push({
@@ -50,7 +49,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
       });
     }
 
-    // Diagonal sweeping lines
     const sweepLines: Array<{angle: number; offset: number; speed: number; length: number; alpha: number}> = [];
     for (let i = 0; i < 20; i++) {
       sweepLines.push({
@@ -73,7 +71,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
 
       ctx.clearRect(0, 0, w, h);
 
-      // === BACKGROUND GLOW - DEEPER RED-ORANGE ===
       const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
       bgGrad.addColorStop(0, `rgba(60,8,0,${0.8 * intensity})`);
       bgGrad.addColorStop(0.5, `rgba(25,2,0,${0.4 * intensity})`);
@@ -81,7 +78,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // === POLYGON RINGS — EACH ROTATING ON DIFFERENT AXIS ===
       for (let r = 0; r < 16; r++) {
         const sides = 3 + r;
         const radius = 15 + r * 9;
@@ -118,10 +114,10 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.restore();
       }
 
-      // === CROSS-DIRECTIONAL ORBITERS ===
       crossOrbiters.forEach((orb) => {
         const angle = time * orb.speed * intensity + orb.phase;
-        let ox: number, oy: number;
+        let ox = cx;
+        let oy = cy;
         
         switch(orb.axis) {
           case 'h': ox = cx + Math.cos(angle) * orb.radius * 1.4; oy = cy + Math.sin(angle) * orb.radius * 0.25; break;
@@ -132,7 +128,8 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         
         for (let t = 1; t <= 3; t++) {
           const ta = angle - t * 0.05;
-          let tx: number, ty: number;
+          let tx = cx;
+          let ty = cy;
           switch(orb.axis) {
             case 'h': tx = cx + Math.cos(ta) * orb.radius * 1.4; ty = cy + Math.sin(ta) * orb.radius * 0.25; break;
             case 'v': tx = cx + Math.cos(ta) * orb.radius * 0.25; ty = cy + Math.sin(ta) * orb.radius * 1.4; break;
@@ -158,7 +155,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.shadowBlur = 0;
       });
 
-      // === DIAGONAL SWEEPING LINES ===
       sweepLines.forEach((sweep) => {
         const sweepPhase = (time * sweep.speed + sweep.offset) % (Math.PI * 2);
         const sweepRadius = maxR * 0.65;
@@ -188,7 +184,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.shadowBlur = 0;
       });
 
-      // === SCATTERED ARC SEGMENTS ===
       for (let a = 0; a < 24; a++) {
         const arcCx = cx + Math.sin(time * 0.9 + a * 1.2) * maxR * 0.35;
         const arcCy = cy + Math.cos(time * 0.7 + a * 0.9) * maxR * 0.35;
@@ -207,7 +202,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.shadowBlur = 0;
       }
 
-      // === RANDOM SPINNING LINES ===
       if (Math.random() < 0.4 * intensity) {
         const startAngle = Math.random() * Math.PI * 2;
         const lineLen = 15 + Math.random() * 70;
@@ -251,7 +245,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         return true;
       });
 
-      // === 80 CRISSCROSSING BEAMS ===
       for (let i = 0; i < 80; i++) {
         const beamAngle = (i * Math.PI * 2) / 80 + time * 0.3 * intensity * (i % 3 === 0 ? -1 : 1);
         const innerR = 8;
@@ -266,16 +259,16 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.stroke();
       }
 
-      // === 250 SPARKS IN ALL DIRECTIONS ===
       for (let i = 0; i < 250; i++) {
         const sparkDir = i % 4;
-        let px: number, py: number;
+        let px = cx;
+        let py = cy;
         
         switch(sparkDir) {
           case 0: px = cx + ((time * 40 + i * 7) % 440) - 220; py = cy + Math.sin(time * 3 + i * 0.2) * maxR * 0.45; break;
           case 1: px = cx + Math.cos(time * 3 + i * 0.2) * maxR * 0.45; py = cy + ((time * 40 + i * 7) % 440) - 220; break;
-          case 2: const d1 = ((time * 40 + i * 7) % 440) - 220; px = cx + d1 * 0.7; py = cy + d1 * 0.7; break;
-          case 3: const d2 = ((time * 40 + i * 7) % 440) - 220; px = cx + d2 * 0.7; py = cy - d2 * 0.7; break;
+          case 2: { const d1 = ((time * 40 + i * 7) % 440) - 220; px = cx + d1 * 0.7; py = cy + d1 * 0.7; break; }
+          case 3: { const d2 = ((time * 40 + i * 7) % 440) - 220; px = cx + d2 * 0.7; py = cy - d2 * 0.7; break; }
         }
         
         if (Math.abs(px - cx) > maxR * 0.75 || Math.abs(py - cy) > maxR * 0.75) continue;
@@ -287,31 +280,35 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.fill();
       }
 
-      // === 28 DIAMOND SHARDS IN DIFFERENT PATTERNS ===
       for (let d = 0; d < 28; d++) {
         const pattern = d % 3;
-        let sx: number, sy: number, rot: number;
+        let sx = cx;
+        let sy = cy;
+        let rot = 0;
         const shardSize = 4 + Math.sin(d) * 2;
         
         switch(pattern) {
-          case 0:
+          case 0: {
             const circAngle = time * 0.8 * intensity + d * 0.3;
             sx = cx + Math.cos(circAngle) * (30 + (d % 4) * 9);
             sy = cy + Math.sin(circAngle) * (30 + (d % 4) * 9) * 0.5;
             rot = time * 4 * (d % 2 === 0 ? 1 : -1);
             break;
-          case 1:
+          }
+          case 1: {
             const fig8 = time * 0.7 * intensity + d * 0.4;
             sx = cx + Math.sin(fig8) * 55;
             sy = cy + Math.sin(fig8 * 2) * 35;
             rot = time * 3.5;
             break;
-          case 2:
+          }
+          case 2: {
             const zig = time * 0.9 * intensity + d;
             sx = cx + Math.cos(zig) * (35 + Math.sin(zig * 3) * 22);
             sy = cy + Math.sin(zig * 0.7) * 45;
             rot = time * 5 * (d % 2 === 0 ? 1 : -1);
             break;
+          }
         }
         
         ctx.save();
@@ -335,7 +332,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         ctx.restore();
       }
 
-      // === AGGRESSIVE PARTICLE BURSTS ===
       if (isProcessing && Math.random() < 0.95) {
         for (let b = 0; b < 8; b++) {
           const angle = Math.random() * Math.PI * 2;
@@ -368,7 +364,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
         return true;
       });
 
-      // === CENTER CORE ===
       const coreSize = maxR * 0.07;
       
       const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreSize * 3.5);
@@ -418,7 +413,6 @@ export default function HoloCore({ isListening, isProcessing, transcript, respon
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // === RIPPLE PULSES ===
       if (isProcessing || isListening) {
         for (let w = 0; w < (isProcessing ? 8 : 4); w++) {
           const phase = (time * 120 + w * (80 / (isProcessing ? 8 : 4))) % 80;
