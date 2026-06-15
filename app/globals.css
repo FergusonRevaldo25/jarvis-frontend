@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+* {
+  cursor: default;
+}
+
+body {
+  background: black;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #ff6a0020;
+  color: #ff6a00;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff6a0020;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6a0040;
+}
+
+/* Glitch animation */
+@keyframes glitch {
+  0%, 100% { opacity: 1; }
+  2% { opacity: 0.8; transform: translateX(2px); }
+  4% { opacity: 1; }
+  6% { opacity: 0.9; transform: translateX(-1px); }
+  8% { opacity: 1; }
+}
+
+.glitch-text {
+  animation: glitch 4s infinite;
+}
